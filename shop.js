@@ -13,26 +13,25 @@ class Good{
 }
 
 
-class GoodLost{
-    #goods = []
+class GoodsList{
+    #goods
     constructor(filter, sortPrice, sortDir){
         this.#goods = [];
         this.filter = filter;
         this.sortPrice = sortPrice;
         this.sortDir = sortDir;
     }
-    get list(){
-        const shopList = this.#goods.filter(good => filter.test(good.name));
-        if (this.sortPrice == true){
-            if (this.sortDir == true){
-                shopList.sort((price1, price2) => price1 - price2);
-            }else{
-                shopList.sort((price1, price2) => price2 - price1);
-            }
-        }else{
-            return shopList
+    get list() {
+        const shopList = this.#goods.filter(good => this.filter.test(good.name));
+        
+        if (this.sortPrice != true) {
+            return shopList;
         }
+        if (this.sortDir === true) {
+            return shopList.sort((a, b) => (a.price - b.price)); }
+        return shopList.sort((a, b) => (b.price - a.price));
     }
+
     addGood(newGood){
         this.#goods.push(newGood)
     }
@@ -43,8 +42,8 @@ class GoodLost{
         } 
         return i
     } 
-
 }
+
 
 class BsasketGood extends Good{
     constructor(id,name,description,sizes,price,available, amount){
@@ -65,32 +64,96 @@ class Basket{
     }
 
     gettotalSum(){
-        return totalSum = this.goods.reduce((a,b) => a + b.amount * b.price);
+        return this.goods.reduce((a,b) => a + b.amount * b.price, 0);
     }
 
-    add(good, amount){
+    addGood(good, amount){
         let i = this.goods.findIndex(vlaue => vlaue.id === good.id);
         if (i >= 0){
             this.goods[i].amount += amount
         }else{
-            let addGood = new BsasketGood(good.id, good.name, good.description, good.sizes, good.price, good.available, amount);
-            this.goods.push(addGood)
+            let addgood = new BsasketGood(good.id, good.name, good.description, good.sizes, good.price, good.available, amount);
+            this.goods.push(addgood)
     }
 }
+
+    remove(good, amount){
+        let i = this.goods.findIndex(vlaue => vlaue.id === good.id);
+         if(i >= 0){
+            if(this.goods[i].amount - amount <= 0 || amount ===0){
+            this.goods.splice(i,1)
+        }else{
+            this.goods[i].amount -=amount
+        }
+    }
+}
+
 clear(){
     this.goods.length = 0;
 }
 
-removeUnavailable() {
-    this.goods.filter(item => item.available === false).forEach(value => this.remove(value));
+delUnavailable() {
+    let goodAvailable = this.goods.filter(good => good.available === true)
+    return goodAvailable
 }
 
 }
 
-const first = new Good(1, "T-shirt", "color: white, material: coton", ["S", "M", "XL"], 1500, true);
-const second = new Good(2, "Dress", "color: red, material: silk", ["S", "M", "L"], 10000, true);
-const third = new Good(3, "Jacket", "color: black, material: leather", ["XS", "M", "XXL"], 35000, true);
-const fourth = new Good(4, "Jeans", "color: blue, material: coton", ["S", "M", "L", "XL"], 8000, true);
-const fifth = new Good(5, "Shorts", "color: grey, material: coton", ["L", "XL"], 4500, true);
+const one = new Good(1, "Футболка", "Цвет: Черный", ["S", "M", "XL"], 3000, true);
+const two = new Good(2, "Куртка", "Цвет: Красный", ["S", "M", "L"], 10000, true);
+const three = new Good(3, "Свитер", "Цвет: Синий", ["XS", "M", "XXL"], 35000, true);
+const four = new Good(4, "Брюки", "Зеленый", ["S", "M", "L", "XL"], 8000, true);
+const five = new Good(5, "Худи", "Цвет: Серый", ["L", "XL"], 4500, true);
 
-console.log('1231244')
+regexp = /Куртка|Свитер|Брюки/i
+let catalog = new GoodsList(regexp, false, true)
+
+
+catalog.addGood(one)
+catalog.addGood(two)
+catalog.addGood(three)
+catalog.addGood(four)
+catalog.addGood(five)
+
+console.log(`Список отобраных товаров:`, catalog.list)
+
+catalog.sortPrice = true;
+catalog.sortDir = true;
+
+console.log(`Список отсортированый по цене`, catalog.list)
+
+
+catalog.delGood(2)
+console.log(`Список после удаления товара`,catalog.list)
+
+one.setAvailable(false)
+console.log(one)
+
+
+
+let basket = new Basket()
+
+console.log(basket)
+
+basket.addGood(one,5)
+basket.addGood(two, 7)
+basket.addGood(three,5)
+basket.addGood(four,7)
+basket.addGood(five,10)
+
+console.log(`Содержимое коризины`, basket)
+
+console.log(`Количество товаров в коризине:`, basket.gettotalAmount())
+
+console.log(`Сумма всех товаров:`, basket.gettotalSum())
+
+basket.remove(five,10)
+basket.remove(one,4)
+
+console.log(basket.goods)
+
+console.log(basket.delUnavailable())
+
+basket.clear()
+
+console.log(basket.goods)
